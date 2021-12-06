@@ -1,16 +1,21 @@
 import re
-import os
-import functools
 import enum
 
 board_size = 5
 
 
+class Playing(enum.Enum):
+    TO_WIN = 0
+    TO_LOSE = 1
+
 # declare a class to represent the board.  Seems heavy, but encapsulates the logic
+
+
 class board():
     def __init__(self, board_name, size, raw):
-        self.board_name = board_name,
+        self.board_name = board_name
         self._size = size
+        # I want to abuse dictionaries to make this fast.  Avoid On^2 problems by not looping rows, and then looping columns
         # track the columns and how many matches they have
         self._y_matches = [0] * self._size
         # track the rows and how many matches they have
@@ -32,7 +37,8 @@ class board():
         coordinates = self._numbers[int(number)]
         self._y_matches[coordinates["y"]] += 1
         self._x_matches[coordinates["x"]] += 1
-        return self._x_matches[coordinates["x"]] == self._size or self._y_matches[coordinates["y"]] == self._size
+        return self._x_matches[coordinates["x"]
+                               ] == self._size or self._y_matches[coordinates["y"]] == self._size
 
     def get_sum_of_not_matches(self):
         sum = 0
@@ -42,16 +48,26 @@ class board():
         return sum
 
 
-def answer_a(path):
+def play(path, mode=Playing.TO_WIN):
     game = read_entries_from_file(path)
+    boards_with_bingo = {}
     for number in game['numbers']:
         for board in game['boards']:
-            if(board.has_bingo(number)):
-                return board.get_sum_of_not_matches() * number
+            if(not board.board_name in boards_with_bingo):
+                if(board.has_bingo(number)):
+                    if(mode == Playing.TO_WIN):
+                        return board.get_sum_of_not_matches() * number
+                    boards_with_bingo[board.board_name] = True
+                    if(len(boards_with_bingo) == len(game['boards'])):
+                        return board.get_sum_of_not_matches() * number
 
 
-def answer_b():
-    read_entries_from_file()
+def answer_a(path):
+    return play(path, Playing.TO_WIN)
+
+
+def answer_b(path):
+    return play(path, Playing.TO_LOSE)
 
 
 def read_entries_from_file(path):
