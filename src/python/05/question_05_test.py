@@ -5,7 +5,6 @@ from question_05 import answer_a, answer_b
 
 
 class Question5(unittest.TestCase):
-    @skip
     def test_question_5a_trivial_input(self):
         self.assertEqual(answer_a("src/python/05/sample.txt"), 5)
 
